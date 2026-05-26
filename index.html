@@ -1,0 +1,902 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>AVTR-1: Open Stack for Real-Time Interactive Avatars</title>
+<link rel="icon" type="image/x-icon" href="favicon.ico" sizes="48x48">
+<meta name="description" content="AVTR-1: an open stack for real-time interactive avatar conversations, built around a compact motion generator conditioned on both participants' audio, with dyadic listening behavior and identity preservation." />
+
+<!-- Open Graph (Telegram, Slack, Facebook, LinkedIn, iMessage, …) -->
+<meta property="og:type" content="website" />
+<meta property="og:url" content="https://avtr-1.avaturn.live/" />
+<meta property="og:site_name" content="Avaturn Live" />
+<meta property="og:title" content="AVTR-1: Open Stack for Real-Time Interactive Avatars" />
+<meta property="og:description" content="An open stack for real-time interactive avatar conversations, built around a compact motion generator conditioned on both participants' audio, with dyadic listening behavior and identity preservation." />
+<meta property="og:image" content="https://avtr-1.avaturn.live/media/og-preview.png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:image:alt" content="AVTR-1 — Open Stack for Real-Time Interactive Avatars" />
+
+<!-- Twitter / X card -->
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="AVTR-1: Open Stack for Real-Time Interactive Avatars" />
+<meta name="twitter:description" content="An open stack for real-time interactive avatar conversations, built around a compact motion generator conditioned on both participants' audio, with dyadic listening behavior and identity preservation." />
+<meta name="twitter:image" content="https://avtr-1.avaturn.live/media/og-preview.png" />
+
+<style>
+  :root {
+    --bg: #0e0f12;
+    --panel: #16181d;
+    --panel-2: #1c1f26;
+    --fg: #f1f3f5;
+    --muted: #c5c9d2;
+    --accent: #7c5cff;
+    --accent-2: #4ecbff;
+    --border: rgba(255,255,255,0.08);
+    --good: #4ade80;
+    --warn: #f59e0b;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: var(--bg); color: var(--fg); overflow-x: clip; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto,
+                 "Helvetica Neue", Arial, sans-serif;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  a { color: var(--accent-2); text-decoration: none; }
+  a:hover { color: var(--accent); }
+
+  .container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 24px;
+  }
+
+  /* ----- Hero ----- */
+  .hero {
+    text-align: center;
+    padding: 80px 24px 56px;
+    background:
+      radial-gradient(1200px 600px at 50% -10%,
+        rgba(124,92,255,0.25), transparent 60%),
+      radial-gradient(800px 400px at 80% 0%,
+        rgba(78,203,255,0.15), transparent 60%);
+    border-bottom: 1px solid var(--border);
+  }
+  .hero h1 {
+    font-size: 56px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    margin: 0 0 12px;
+    background: linear-gradient(90deg, #fff 0%, #c8cdf5 50%, #9adfff 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .hero .tagline {
+    font-size: 28px;
+    font-weight: 600;
+    color: #fff;
+    letter-spacing: -0.01em;
+    max-width: 760px;
+    margin: 0 auto 10px;
+  }
+  .hero .sub-tagline {
+    font-size: 17px;
+    color: var(--muted);
+    max-width: 640px;
+    margin: 0 auto 28px;
+  }
+  .hero .authors {
+    color: var(--muted);
+    margin: 0 0 8px;
+    font-size: 15px;
+  }
+  .hero .affiliation {
+    color: var(--muted);
+    margin: 0 0 28px;
+    font-size: 14px;
+  }
+  .btn-row {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 18px;
+    border-radius: 999px;
+    background: var(--panel-2);
+    border: 1px solid var(--border);
+    color: var(--fg);
+    font-weight: 500;
+    font-size: 14px;
+    transition: background 0.15s, transform 0.15s;
+  }
+  .btn:hover { background: #262932; transform: translateY(-1px); }
+  .btn.primary {
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    border: none;
+  }
+  .btn.primary:hover { background: linear-gradient(135deg, #6b4eff, #2cc1ff); color: #fff; }
+
+  /* ----- Sections ----- */
+  section {
+    padding: 64px 24px;
+    border-bottom: 1px solid var(--border);
+  }
+  section h2 {
+    font-size: 32px;
+    margin: 0 0 12px;
+    text-align: center;
+    letter-spacing: -0.01em;
+  }
+  section .sub {
+    color: var(--muted);
+    text-align: center;
+    max-width: 720px;
+    margin: 0 auto 36px;
+  }
+  section p { color: #e3e6ec; }
+
+  /* ----- Abstract ----- */
+  .abstract {
+    max-width: 880px;
+    margin: 0 auto;
+    font-size: 17px;
+    text-align: justify;
+    hyphens: auto;
+  }
+  .abstract p + p { margin-top: 16px; }
+
+  /* ----- Video grid ----- */
+  .video-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    max-width: 820px;
+    margin: 0 auto;
+  }
+  .video-card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+    transition: transform 0.15s, border-color 0.15s;
+  }
+  .video-card:hover {
+    transform: translateY(-2px);
+    border-color: rgba(124,92,255,0.4);
+  }
+  .video-card video {
+    display: block;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    background: #000;
+    object-fit: contain;
+  }
+  .video-mock {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    background:
+      radial-gradient(circle at 50% 35%,
+        rgba(124,92,255,0.35), rgba(78,203,255,0.10) 55%, transparent 70%),
+      linear-gradient(135deg, #1a1d24 0%, #0f1115 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #4b5163;
+  }
+  .video-mock::after {
+    content: "▶";
+    font-size: 44px;
+    color: rgba(255,255,255,0.18);
+  }
+  .video-mock .badge {
+    position: absolute;
+    bottom: 12px;
+    left: 12px;
+    background: rgba(0,0,0,0.55);
+    backdrop-filter: blur(6px);
+    color: #fff;
+    font-size: 12px;
+    padding: 4px 10px;
+    border-radius: 999px;
+    letter-spacing: 0.02em;
+  }
+  .video-card .meta {
+    padding: 14px 16px 16px;
+  }
+  .video-card .meta .title {
+    color: #fff;
+    font-size: 15px;
+    margin: 0 0 4px;
+  }
+  .video-card .meta .desc {
+    color: var(--muted);
+    font-size: 13px;
+    margin: 0;
+  }
+
+  /* ----- Pipeline diagram ----- */
+  .pipeline {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 28px 22px;
+    margin: 24px auto 0;
+    max-width: 980px;
+  }
+  .pipeline-row {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 12px;
+    align-items: stretch;
+  }
+  @media (max-width: 800px) {
+    .pipeline-row { grid-template-columns: repeat(2, 1fr); }
+  }
+  .step {
+    background: var(--panel-2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 14px 16px;
+    position: relative;
+  }
+  .step .num {
+    display: inline-block;
+    font-size: 12px;
+    color: var(--accent);
+    background: rgba(124,92,255,0.12);
+    border: 1px solid rgba(124,92,255,0.3);
+    padding: 2px 8px;
+    border-radius: 999px;
+    margin-bottom: 8px;
+  }
+  .step h4 {
+    margin: 0 0 4px;
+    font-size: 15px;
+    color: #fff;
+  }
+  .step p {
+    margin: 0;
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.45;
+  }
+
+  /* ----- Compare grid ----- */
+  .compare-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 14px;
+  }
+  .compare-card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+  }
+  .compare-card .header {
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .compare-card .header .name { font-weight: 600; color: #fff; font-size: 15px; }
+  .compare-card .header .tag {
+    color: var(--accent-2);
+    font-size: 12px;
+    padding: 2px 10px;
+    border-radius: 999px;
+    border: 1px solid rgba(78,203,255,0.3);
+    background: rgba(78,203,255,0.08);
+  }
+  .compare-card.ours .header .tag {
+    color: var(--accent);
+    border-color: rgba(124,92,255,0.4);
+    background: rgba(124,92,255,0.12);
+  }
+  .compare-card .video-mock { aspect-ratio: 4 / 5; }
+  .compare-card .stats {
+    padding: 12px 16px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px 14px;
+  }
+  .compare-card .stats .row { display: flex; justify-content: space-between; font-size: 13px; }
+  .compare-card .stats .row .k { color: var(--muted); }
+  .compare-card .stats .row .v { color: #fff; }
+
+  /* ----- Features ----- */
+  .features {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 16px;
+  }
+  .feature {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 22px;
+  }
+  .feature .icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+  }
+  .feature h3 { margin: 0 0 6px; font-size: 17px; color: #fff; }
+  .feature p { margin: 0; color: var(--muted); font-size: 14px; }
+
+  /* ----- Metrics table ----- */
+  .table-wrap {
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    background: var(--panel);
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    background: transparent;
+    table-layout: fixed;
+  }
+  th, td {
+    padding: 8px 10px;
+    text-align: center;
+    border-bottom: 1px solid var(--border);
+    font-size: 13px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  /* First two columns (Metric, Encoder) stay left-aligned for readability. */
+  th:nth-child(1), td:nth-child(1),
+  th:nth-child(2), td:nth-child(2) { text-align: left; }
+  th { color: var(--muted); font-weight: 500; background: rgba(255,255,255,0.02); }
+  tr:last-child td { border-bottom: none; }
+  th.num, td.num { font-variant-numeric: tabular-nums; color: #fff; text-align: center !important; }
+  tr.ours td { background: rgba(124,92,255,0.08); color: #fff; }
+  tr.ours td:first-child { color: var(--accent); font-weight: 600; }
+  td.best { color: var(--good); font-weight: 600; }
+  /* CSS-based tooltip on metric name cells. Same UX as our SI own tables. */
+  td.metric, th.metric { position: relative; overflow: visible !important; }
+  td.metric[data-tip], th.metric[data-tip] {
+    cursor: help;
+    text-decoration: underline dotted rgba(255,255,255,0.55);
+  }
+  td.metric[data-tip]::after, th.metric[data-tip]::after {
+    content: attr(data-tip);
+    position: absolute;
+    left: 0;
+    top: 100%;
+    margin-top: 6px;
+    background: #232631;
+    color: #f1f3f5;
+    padding: 10px 14px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    font-size: 12px;
+    font-weight: 400;
+    line-height: 1.5;
+    white-space: normal;
+    width: 380px;
+    max-width: 80vw;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.6);
+    visibility: hidden;
+    opacity: 0;
+    transition: opacity 120ms ease-in 150ms;
+    pointer-events: none;
+    z-index: 1000;
+  }
+  td.metric[data-tip]:hover::after,
+  th.metric[data-tip]:hover::after { visibility: visible; opacity: 1; }
+  /* Need overflow:visible all the way up to the table-wrap so the
+     tooltip can escape its cell. */
+  .table-wrap, table, tbody, tr { overflow: visible; }
+  /* On narrow screens, give up the in-place tooltip and let the table
+     scroll horizontally so cell text stays readable. Also let the
+     video grid go edge-to-edge so quad clips have as much width as
+     possible. */
+  @media (max-width: 720px) {
+    .table-wrap {
+      overflow-x: auto !important;
+      -webkit-overflow-scrolling: touch;
+    }
+    table { min-width: 680px; }
+    th, td { padding: 6px 8px; font-size: 12px; }
+    td.metric[data-tip]::after { display: none; }
+    section { padding: 48px 12px; }
+    .video-grid {
+      max-width: none;
+      gap: 12px;
+    }
+    .video-card {
+      border-radius: 8px;
+    }
+    .video-card video {
+      aspect-ratio: auto;  /* let the source video's intrinsic ratio drive height */
+    }
+    figure.diagram {
+      padding: 10px;
+    }
+  }
+  @media (max-width: 480px) {
+    .hero h1 { font-size: 40px; }
+    .hero .tagline { font-size: 22px; }
+    .hero .sub-tagline { font-size: 15px; }
+    section h2 { font-size: 24px; }
+  }
+  tr.group-divider td {
+    border-top: 3px solid rgba(124,92,255,0.55);
+  }
+  tr.group-divider-headline td {
+    border-top: 4px solid rgba(124,92,255,0.85);
+  }
+  tr.section-header td {
+    background: rgba(124,92,255,0.10);
+    color: var(--accent);
+    font-weight: 700;
+    font-size: 13px;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    padding-top: 18px;
+    padding-bottom: 12px;
+    border-top: 3px solid rgba(124,92,255,0.55);
+    border-bottom: 1px solid rgba(124,92,255,0.3);
+  }
+  /* First section gets no thick top-border (already inside rounded card). */
+  tr.section-header:first-child td { border-top: none; }
+  td.ours-cell {
+    background: rgba(124,92,255,0.08);
+    border-left: 2px solid rgba(124,92,255,0.5);
+    color: #fff;
+  }
+  td.best.ours-cell { color: var(--good); }
+  /* Keep the "best" green on the highlighted (ours) row: tr.ours td would
+     otherwise win on specificity and paint the cell white. */
+  tr.ours td.best { color: var(--good); }
+
+  /* Metrics tables (Table 5 / R-DGG): size columns to content and never
+     wrap or clip model names. On narrow screens .table-wrap scrolls. */
+  .metrics-table { table-layout: auto; }
+  .metrics-table th, .metrics-table td {
+    white-space: nowrap;
+    overflow: visible;
+    text-overflow: clip;
+  }
+
+  /* ----- Figures / diagrams ----- */
+  figure.diagram {
+    margin: 36px auto 0;
+    max-width: 980px;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 18px;
+  }
+  figure.diagram img {
+    display: block;
+    width: 100%;
+    height: auto;
+    border-radius: 8px;
+    background: #fff;
+  }
+  figure.diagram figcaption {
+    color: var(--muted);
+    font-size: 13px;
+    text-align: center;
+    margin-top: 14px;
+    line-height: 1.5;
+  }
+  figure.diagram figcaption strong { color: #fff; }
+
+  /* ----- BibTeX ----- */
+  .bibtex {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px 18px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 13px;
+    color: #e3e6ec;
+    overflow-x: auto;
+    white-space: pre;
+    max-width: 880px;
+    margin: 0 auto;
+  }
+
+  /* ----- Footer ----- */
+  footer {
+    text-align: center;
+    padding: 36px 24px 56px;
+    color: var(--muted);
+    font-size: 13px;
+  }
+  footer a { color: var(--muted); }
+  footer a:hover { color: var(--accent-2); }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="container">
+    <h1>AVTR-1</h1>
+    <p class="tagline">Open Stack for Real-Time Interactive Avatars</p>
+    <p class="authors">
+      Artem&nbsp;Kravtsov<sup>*</sup>,
+      Dmitrii&nbsp;Ziganshin<sup>*</sup>,
+      Vsevolod&nbsp;Poletaev<sup>*</sup>,
+      Gleb&nbsp;Balitskiy,
+      Anastasia&nbsp;Tikhonova,
+      Egor&nbsp;Burkov,
+      Vadim&nbsp;Lebedev
+    </p>
+    <p class="affiliation">
+      Avaturn Live · 2026 &nbsp; · &nbsp;
+      <sup>*</sup> Core contributors: co-wrote the paper
+    </p>
+    <div class="btn-row">
+      <a class="btn primary" href="#demo">▶ Watch demo</a>
+      <a class="btn" href="https://avaturn.live" target="_blank" rel="noopener">Website</a>
+      <a class="btn" href="https://github.com/avaturn-live/avtr-1" target="_blank" rel="noopener">Code</a>
+      <a class="btn" href="https://arxiv.org/abs/2609.22913" target="_blank" rel="noopener">Tech report ↗</a>
+    </div>
+  </div>
+</header>
+
+<!-- ABSTRACT -->
+<section id="abstract">
+  <div class="container">
+    <h2>Abstract</h2>
+    <div class="abstract">
+      <p>
+        Talking-head and dyadic models now achieve real-time inference, yet fast
+        motion generation alone does not produce an interactive conversation. A live
+        system must synchronize the model's output with speech from an external voice
+        agent, schedule video frames for playback, and handle interruptions. We
+        introduce <strong>AVTR-1</strong>, an open stack for real-time interactive
+        avatar conversations, built around a compact 153M-parameter autoregressive
+        flow-matching motion generator conditioned on both participants' audio. We
+        adapt its audio encoder for streaming through self-distillation. The stack
+        turns the model's chunk-based generation into a continuous, synchronized
+        audio-video stream driven by an external voice agent, and we analytically
+        derive its contribution to the user-facing latencies and validate the
+        resulting bounds with two commercial voice agents. Further experiments
+        demonstrate that AVTR-1 leads the compared dyadic systems on all reported
+        visual-quality metrics and most conventional listening-motion metrics while
+        remaining competitive in lip synchronization. Its inference runtime operates
+        in real time on data-center and consumer GPUs. However, conventional listening
+        metrics do not establish whether the paired speaker's speech contributes to
+        generated motion. We therefore introduce the Reference-Based Directed Granger
+        Gain (R-DGG), which measures the additional predictive information carried by
+        speaker speech after accounting for listener history and speaker motion. R-DGG
+        finds statistically supported predictive dependence for recorded listeners and
+        all evaluated dyadic systems, but not for talking-head generators without
+        paired audio or mismatched speaker&ndash;listener pairs. We release the model
+        weights, renderer, and serving backend under component-specific licenses.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- DEMO -->
+<section id="demo">
+  <div class="container">
+    <h2>Demo</h2>
+    <p class="sub">
+      Three dyadic
+      <a href="https://www.aidemos.meta.com/seamless_interaction_dataset"
+      target="_blank" rel="noopener">Seamless Interaction</a> calls below.
+    </p>
+
+    <div class="video-grid">
+      <div class="video-card">
+        <video controls preload="metadata" playsinline
+               src="media/pair_V00_S2047_I00001188.mp4"></video>
+      </div>
+      <div class="video-card">
+        <video controls preload="metadata" playsinline
+               src="media/pair_V00_S2052_I00000635.mp4"></video>
+      </div>
+      <div class="video-card">
+        <video controls preload="metadata" playsinline
+               src="media/pair_V00_S2019_I00001095.mp4"></video>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- METHOD -->
+<section id="method">
+  <div class="container">
+    <h2>Model Architecture</h2>
+    <p class="sub">
+      The AVTR-1 motion model is a 153M-parameter conditional flow-matching
+      Transformer that autoregressively generates five-frame motion conditioned
+      on two separate audio channels called self and other audio. The motion
+      model is a pre-norm Transformer decoder with 18 layers, 8 heads, and width
+      512. Each block receives past motion, audio features for both channels, and
+      a static reference. We divide the 75-frame motion history between a near
+      path over the last five frames and a far path over the earlier 70. The
+      flow-matching timestep modulates each sub-block through adaptive layer
+      normalization (AdaLN), with separate scale and shift predicted for each. The
+      outputs are concatenated to form the final 42-dimensional velocity prediction.
+    </p>
+
+    <figure class="diagram">
+      <img src="media/avtr1-architecture.svg" alt="AVTR-1 motion model architecture">
+    </figure>
+
+  </div>
+</section>
+
+<!-- INFERENCE -->
+<section id="inference">
+  <div class="container">
+    <h2>Inference</h2>
+    <p class="sub">
+      We call the inference-side component that serves the motion model the
+      renderer. It registers the source portrait once, then generates five frames
+      at a time. For each motion chunk, the two audio channels are batched into one
+      audio encoder call. Each request predicts a motion chunk, renders it with the
+      cached LivePortrait appearance, and returns the updated state required by the
+      next request.
+    </p>
+
+    <figure class="diagram">
+      <img src="media/avtr1-inference.svg" alt="AVTR-1 inference overview">
+    </figure>
+
+    <p style="max-width: 900px; margin: 32px auto 0; color: #e3e6ec; text-wrap: balance; text-align: center;">
+      The streamer's worklet and event-bus architecture. A transport, a conversation
+      engine, and a rendering worklet communicate only through a central event bus.
+      The conversation engine worklet adapts a voice agent, the rendering worklet
+      holds one speech scheduler per speech stream, avatar and user, and drives the
+      renderer, returning fused audio-video frames. Worklets read the stream clock
+      directly.
+    </p>
+
+    <figure class="diagram">
+      <img src="media/avtr1-streamer.svg" alt="AVTR-1 streamer worklet and event-bus architecture">
+    </figure>
+
+    <p style="max-width: 900px; margin: 48px auto 0; color: #e3e6ec; text-wrap: balance; text-align: center;">
+      Per-chunk latency and real-time factor across GPUs, measured offline
+      on one five-frame (200&nbsp;ms) chunk.
+    </p>
+    <div class="table-wrap" style="max-width: 560px; margin: 24px auto 0;">
+      <table>
+        <colgroup>
+          <col style="width: 34%;"/>
+          <col style="width: 36%;"/>
+          <col style="width: 30%;"/>
+        </colgroup>
+        <thead>
+          <tr>
+            <th>GPU</th>
+            <th class="num" style="white-space: nowrap;">Latency per chunk</th>
+            <th class="num" style="white-space: nowrap;">Real-time factor</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>NVIDIA&nbsp;L40S</td>         <td class="num">71&nbsp;ms</td>  <td class="num best">2.81×</td></tr>
+          <tr><td>NVIDIA&nbsp;A100</td>         <td class="num">91&nbsp;ms</td>  <td class="num">2.20×</td></tr>
+          <tr><td>NVIDIA&nbsp;RTX&nbsp;4060&nbsp;Ti</td> <td class="num">162&nbsp;ms</td> <td class="num">1.24×</td></tr>
+          <tr><td>NVIDIA&nbsp;RTX&nbsp;3070</td> <td class="num">180&nbsp;ms</td> <td class="num">1.11×</td></tr>
+          <tr><td>NVIDIA&nbsp;L4</td>           <td class="num">202&nbsp;ms</td> <td class="num">0.99×</td></tr>
+          <tr><td>NVIDIA&nbsp;RTX&nbsp;3060&nbsp;Ti</td> <td class="num">207&nbsp;ms</td> <td class="num">0.97×</td></tr>
+          <tr><td>NVIDIA&nbsp;RTX&nbsp;4060</td> <td class="num">232&nbsp;ms</td> <td class="num">0.86×</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- RESULTS (own models only) -->
+<section id="results">
+  <div class="container">
+    <h2>Qualitative Comparison</h2>
+    <p class="sub">
+      <strong>★ = paired audio.</strong> For
+      AvatarForcing*, we extend the hardcoded RoPE range and increase the
+      maximum generation length from 30 to 600 seconds so that it can
+      process full conversations.
+    </p>
+
+    <div class="video-grid">
+      <div class="video-card">
+        <video controls preload="metadata" playsinline style="aspect-ratio: 7 / 2;"
+               src="media/quad_V00_S2019_I00001095.mp4"></video>
+      </div>
+      <div class="video-card">
+        <video controls preload="metadata" playsinline style="aspect-ratio: 7 / 2;"
+               src="media/quad_V00_S2047_I00001188.mp4"></video>
+      </div>
+      <div class="video-card">
+        <video controls preload="metadata" playsinline style="aspect-ratio: 7 / 2;"
+               src="media/quad_V00_S2052_I00000635.mp4"></video>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- QUANTITATIVE RESULTS -->
+<section id="quantitative">
+  <div class="container">
+    <h2>Quantitative Results</h2>
+    <p class="sub">
+      AVTR-1 achieves the strongest overall performance among the compared dyadic
+      systems, leading all visual-quality metrics and most conventional
+      listening-motion metrics while remaining competitive in lip synchronization.
+      We evaluate on 184 speaker–listener pairs from the conversational, improvised
+      subset of the
+      <a href="https://www.aidemos.meta.com/seamless_interaction_dataset"
+      target="_blank" rel="noopener">Seamless&nbsp;Interaction</a> test split.
+    </p>
+
+    <!-- Table 5a: visual quality + lip sync -->
+    <p style="max-width: 900px; margin: 12px auto 0; color: #e3e6ec; text-align: center;">
+      <strong>Visual quality and lip synchronization.</strong> Best value among the
+      dyadic systems (Paired&nbsp;audio&nbsp;=&nbsp;Yes) in
+      <span style="color: var(--good); font-weight: 600;">green</span>; talking-head
+      baselines shown for context.
+    </p>
+    <div class="table-wrap" style="max-width: 760px; margin: 20px auto 0;">
+      <table class="metrics-table">
+        <thead>
+          <tr>
+            <th rowspan="2">Method</th>
+            <th rowspan="2" class="num">Paired&nbsp;audio</th>
+            <th colspan="3">Visual quality</th>
+            <th colspan="2">Lip synchronization</th>
+          </tr>
+          <tr>
+            <th class="num metric" data-tip="Fréchet Inception Distance — frame-level visual quality. Lower is better.">FID&nbsp;↓</th>
+            <th class="num metric" data-tip="Fréchet Video Distance — video-level visual quality. Lower is better.">FVD&nbsp;↓</th>
+            <th class="num metric" data-tip="Cosine similarity of ArcFace features — identity preservation. Higher is better.">CSIM&nbsp;↑</th>
+            <th class="num metric" data-tip="SyncNet lip-sync error distance. Lower is better.">LSE-D&nbsp;↓</th>
+            <th class="num metric" data-tip="SyncNet lip-sync confidence. Higher is better.">LSE-C&nbsp;↑</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>SoulX&nbsp;Lite</td> <td class="num">No</td>  <td class="num">12.1</td> <td class="num">89.3</td>  <td class="num">0.91</td> <td class="num">6.74</td> <td class="num">3.38</td></tr>
+          <tr><td>SoulX&nbsp;Pro</td>  <td class="num">No</td>  <td class="num">9.4</td>  <td class="num">53.6</td>  <td class="num">0.93</td> <td class="num">7.35</td> <td class="num">3.09</td></tr>
+          <tr><td>Ditto</td>           <td class="num">No</td>  <td class="num">16.0</td> <td class="num">113.6</td> <td class="num">0.95</td> <td class="num">7.12</td> <td class="num">3.11</td></tr>
+          <tr><td>FLOAT</td>           <td class="num">No</td>  <td class="num">11.7</td> <td class="num">83.2</td>  <td class="num">0.90</td> <td class="num">6.99</td> <td class="num">2.93</td></tr>
+          <tr class="group-divider"><td>AvatarForcing*</td> <td class="num">Yes</td> <td class="num">14.4</td> <td class="num">85.8</td> <td class="num">0.77</td> <td class="num">7.32</td> <td class="num">2.41</td></tr>
+          <tr><td>DyStream</td>        <td class="num">Yes</td> <td class="num">43.1</td> <td class="num">119.4</td> <td class="num">0.87</td> <td class="num best">6.57</td> <td class="num">3.21</td></tr>
+          <tr class="ours"><td>AVTR-1&nbsp;(Ours)</td> <td class="num">Yes</td> <td class="num best">14.3</td> <td class="num best">76.8</td> <td class="num best">0.94</td> <td class="num">7.08</td> <td class="num best">3.28</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Table 5b: conventional listening-motion metrics among dyadic systems -->
+    <p style="max-width: 900px; margin: 40px auto 0; color: #e3e6ec; text-align: center;">
+      <strong>Conventional listening-motion metrics among dyadic systems.</strong>
+      For listening metrics without an arrow, values closer to ground truth are
+      better. The pose components of PFD and variance are reported in units of
+      10<sup>−2</sup>. Best value among the dyadic systems in
+      <span style="color: var(--good); font-weight: 600;">green</span>.
+    </p>
+    <div class="table-wrap" style="max-width: 860px; margin: 20px auto 0;">
+      <table class="metrics-table">
+        <thead>
+          <tr>
+            <th rowspan="2">Method</th>
+            <th colspan="2" class="metric" style="text-align: center;" data-tip="Residual Pearson Correlation Coefficient — gap between generated and recorded speaker–listener motion correlation. Lower is better.">rPCC&nbsp;↓</th>
+            <th colspan="2" class="metric" data-tip="Paired Fréchet Distance — distance between generated and recorded joint speaker–listener motion distributions. Lower is better.">PFD&nbsp;↓</th>
+            <th colspan="2" class="metric" data-tip="Shannon Index for Diversity of generated listener motion. Closer to ground truth is better.">SID</th>
+            <th colspan="2" class="metric" data-tip="Variance of generated listener motion over time. Closer to ground truth is better.">Var</th>
+          </tr>
+          <tr>
+            <th class="num">Exp</th> <th class="num">Pose</th>
+            <th class="num">Exp</th> <th class="num">Pose</th>
+            <th class="num">Exp</th> <th class="num">Pose</th>
+            <th class="num">Exp</th> <th class="num">Pose</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>AvatarForcing*</td> <td class="num">0.109</td> <td class="num">0.163</td> <td class="num">37.51</td> <td class="num">7.560</td> <td class="num">4.749</td> <td class="num best">3.848</td> <td class="num">1.213</td> <td class="num">2.099</td></tr>
+          <tr><td>DyStream</td>       <td class="num">0.128</td> <td class="num">0.141</td> <td class="num">40.87</td> <td class="num">7.598</td> <td class="num">4.497</td> <td class="num">3.606</td> <td class="num">1.164</td> <td class="num best">1.731</td></tr>
+          <tr class="ours"><td>AVTR-1&nbsp;(Ours)</td> <td class="num best">0.083</td> <td class="num best">0.140</td> <td class="num best">25.98</td> <td class="num best">6.417</td> <td class="num best">4.970</td> <td class="num">3.254</td> <td class="num best">1.313</td> <td class="num">0.930</td></tr>
+          <tr class="group-divider"><td style="color: var(--muted);">Ground&nbsp;truth</td> <td class="num">0.000</td> <td class="num">0.000</td> <td class="num">0.000</td> <td class="num">0.000</td> <td class="num">5.231</td> <td class="num">4.001</td> <td class="num">1.463</td> <td class="num">1.789</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- R-DGG (Table 7) -->
+    <h3 style="text-align: center; font-size: 22px; margin: 56px 0 0; color: #fff;">
+      Reference-Based Directed Granger Gain
+    </h3>
+    <p style="max-width: 820px; margin: 14px auto 0; color: #e3e6ec; text-align: center;">
+      A listener can follow the other participant's motion without responding to their
+      speech. The motion metrics above cannot distinguish this behavior from a
+      speech-conditioned response. To address this limitation, the Reference-Based
+      Directed Granger Gain (R-DGG) measures how much the speaker's speech improves
+      prediction of the listener's current motion after accounting for the listener's
+      own history and the speaker's motion. R-DGG passes its validation check: the
+      ground-truth interval remains above zero, while the interval for
+      GT&nbsp;×&nbsp;other includes zero. All three dyadic systems have intervals above
+      zero, while the intervals for every talking-head generator include zero. The
+      intervals of the three dyadic systems overlap, so these results do not support a
+      reliable ranking among them.
+    </p>
+    <p style="max-width: 900px; margin: 24px auto 0; color: #e3e6ec; text-align: center;">
+      Values in units of 10<sup>−4</sup> nats. <em>p</em> = Pr(<em>G</em>&nbsp;≤&nbsp;0).
+      <span style="color: var(--good); font-weight: 600;">Green</span> marks estimates
+      whose 95% interval excludes zero.
+    </p>
+    <div class="table-wrap" style="max-width: 720px; margin: 20px auto 0;">
+      <table class="metrics-table">
+        <thead>
+          <tr>
+            <th rowspan="2">Method</th>
+            <th rowspan="2" class="num">Paired&nbsp;audio</th>
+            <th rowspan="2" class="num metric" data-tip="Reference-Based Directed Granger Gain — extra predictive information the speaker's speech carries about the listener's motion, beyond listener history and speaker motion.">R-DGG</th>
+            <th colspan="3">Bootstrap percentile</th>
+            <th rowspan="2" class="num"><em>p</em></th>
+          </tr>
+          <tr>
+            <th class="num">2.5%</th> <th class="num">50%</th> <th class="num">97.5%</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>AvatarForcing*</td> <td class="num">Yes</td> <td class="num best">0.32</td>  <td class="num">0.07</td>  <td class="num">0.32</td>  <td class="num">0.56</td> <td class="num">0.008</td></tr>
+          <tr class="ours"><td>AVTR-1&nbsp;(Ours)</td> <td class="num">Yes</td> <td class="num best">0.57</td> <td class="num">0.19</td> <td class="num">0.57</td> <td class="num">0.98</td> <td class="num">0.002</td></tr>
+          <tr><td>DyStream</td>       <td class="num">Yes</td> <td class="num best">0.48</td>  <td class="num">0.06</td>  <td class="num">0.49</td>  <td class="num">0.93</td> <td class="num">0.011</td></tr>
+          <tr><td>Ditto</td>          <td class="num">No</td>  <td class="num">0.06</td>  <td class="num">−0.20</td> <td class="num">0.06</td>  <td class="num">0.31</td> <td class="num">0.335</td></tr>
+          <tr><td>FLOAT</td>          <td class="num">No</td>  <td class="num">0.01</td>  <td class="num">−0.33</td> <td class="num">0.00</td>  <td class="num">0.42</td> <td class="num">0.491</td></tr>
+          <tr><td>SoulX&nbsp;Lite</td> <td class="num">No</td>  <td class="num">−0.22</td> <td class="num">−0.54</td> <td class="num">−0.22</td> <td class="num">0.21</td> <td class="num">0.857</td></tr>
+          <tr><td>SoulX&nbsp;Pro</td>  <td class="num">No</td>  <td class="num">0.18</td>  <td class="num">−0.34</td> <td class="num">0.17</td>  <td class="num">0.58</td> <td class="num">0.239</td></tr>
+          <tr class="group-divider"><td style="color: var(--muted);">Ground&nbsp;truth</td> <td class="num">—</td> <td class="num best">0.72</td> <td class="num">0.32</td> <td class="num">0.72</td> <td class="num">1.12</td> <td class="num">&lt;0.001</td></tr>
+          <tr><td style="color: var(--muted);">GT&nbsp;×&nbsp;other</td> <td class="num">—</td> <td class="num">−0.11</td> <td class="num">−0.56</td> <td class="num">−0.11</td> <td class="num">0.45</td> <td class="num">0.659</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- CITATION -->
+<section id="citation">
+  <div class="container">
+    <h2>Citation</h2>
+    <pre class="bibtex">@misc{kravtsov2026avtr1openstackrealtime,
+  title         = {AVTR-1: Open Stack for Real-Time Interactive Avatars},
+  author        = {Artem Kravtsov and Dmitrii Ziganshin and Vsevolod Poletaev
+                   and Gleb Balitskiy and Anastasia Tikhonova and Egor Burkov
+                   and Vadim Lebedev},
+  year          = {2026},
+  eprint        = {2609.22913},
+  archivePrefix = {arXiv},
+  primaryClass  = {cs.CV},
+  url           = {https://arxiv.org/abs/2609.22913}
+}</pre>
+  </div>
+</section>
+
+<footer>
+  <div class="container">
+    <p>
+      © 2026 Avaturn Live ·
+      <a href="https://avaturn.live" target="_blank" rel="noopener">avaturn.live</a>
+    </p>
+  </div>
+</footer>
+
+</body>
+</html>
