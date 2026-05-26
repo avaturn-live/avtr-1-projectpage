@@ -1,0 +1,78 @@
+<?xml version="1.0"?>
+<svg viewBox="0 0 540 240" width="540" height="240" xmlns="http://www.w3.org/2000/svg" style="display: block; font-family: &#39;Helvetica Neue&#39;, Helvetica, Arial, sans-serif; fill: #0A0A0A;">
+<defs>
+<marker id="ah" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="6" refX="7.5" refY="3" orient="auto-start-reverse"><path d="M0,0 L8,3 L0,6 Z" fill="#0A0A0A"></path></marker>
+</defs>
+<rect x="0" y="0" width="540" height="240" fill="#FFFFFF"></rect>
+
+<g fill="#F1F1F1" stroke="#0A0A0A" stroke-width="1.2">
+<rect x="8" y="56" width="92" height="36" rx="4"></rect>
+<rect x="8" y="158" width="92" height="36" rx="4"></rect>
+<rect x="470" y="112" width="58" height="32" rx="4"></rect>
+</g>
+<g font-size="12" text-anchor="middle">
+<text x="54" y="78">Voice agent</text>
+<text x="54" y="180">User</text>
+<text x="499" y="132">Renderer</text>
+</g>
+
+<rect x="118" y="14" width="340" height="210" rx="8" fill="#B1E5DB" stroke="#0A0A0A" stroke-width="1.8"></rect>
+<text x="128" y="28" font-size="12">Streamer</text>
+
+<g fill="#FFFFFF" stroke="#0A0A0A" stroke-width="1.2">
+<rect x="134" y="56" width="80" height="36" rx="6"></rect>
+<rect x="134" y="158" width="80" height="36" rx="6"></rect>
+<rect x="382" y="84" width="70" height="88" rx="6"></rect>
+<rect x="366" y="28" width="86" height="30" rx="6"></rect>
+</g>
+<g fill="#F1F1F1" stroke="#0A0A0A" stroke-width="1.2">
+<rect x="392" y="122" width="52" height="38" rx="4"></rect>
+<rect x="388" y="126" width="52" height="38" rx="4"></rect>
+</g>
+<rect x="272" y="56" width="44" height="138" rx="8" fill="#D9D9E5" stroke="#0A0A0A" stroke-width="1.2"></rect>
+<g font-size="12" text-anchor="middle">
+<text x="174" y="71">Conversation</text>
+<text x="174" y="84" font-size="10">engine worklet</text>
+<text x="174" y="173">Transport</text>
+<text x="174" y="186">worklet</text>
+<text x="294" y="122">Event</text>
+<text x="294" y="135">bus</text>
+<text x="417" y="100">Rendering</text>
+<text x="417" y="112">worklet</text>
+<text x="409" y="47">Stream clock</text>
+</g>
+<g font-size="9" text-anchor="middle">
+<text x="414" y="142">Speech</text>
+<text x="414" y="153">schedulers</text>
+</g>
+
+<g stroke="#0A0A0A" stroke-width="1.4" fill="none" marker-end="url(#ah)">
+<path d="M215,66 L271,66"></path>
+<path d="M271,86 L215,86"></path>
+<path d="M317,118 L381,118"></path>
+<path d="M381,138 L317,138"></path>
+<path d="M215,166 L271,166"></path>
+<path d="M271,186 L215,186"></path>
+<path d="M453,128 L469,128"></path>
+</g>
+
+<g stroke="#0A0A0A" stroke-width="1.4" fill="none" marker-start="url(#ah)" marker-end="url(#ah)">
+<path d="M101,74 L133,74"></path>
+<path d="M101,176 L133,176"></path>
+</g>
+
+<g font-size="10.67" text-anchor="middle">
+<text x="243" y="44">avatar</text>
+<text x="243" y="55">speech</text>
+<text x="243" y="100">user</text>
+<text x="243" y="111">speech</text>
+<text x="350" y="96">avatar +</text>
+<text x="350" y="107">user speech</text>
+<text x="350" y="152">video</text>
+<text x="350" y="163">frames</text>
+<text x="243" y="144">user</text>
+<text x="243" y="155">speech</text>
+<text x="243" y="200">video</text>
+<text x="243" y="211">frames</text>
+</g>
+</svg>

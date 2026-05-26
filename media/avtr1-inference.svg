@@ -1,0 +1,75 @@
+<?xml version="1.0"?>
+<svg viewBox="0 0 528 264" width="528" height="264" xmlns="http://www.w3.org/2000/svg" style="display: block; font-family: &#39;Helvetica Neue&#39;, Helvetica, Arial, sans-serif; fill: #0A0A0A;">
+<defs>
+<marker id="ah" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="6" refX="7.5" refY="3" orient="auto-start-reverse"><path d="M0,0 L8,3 L0,6 Z" fill="#0A0A0A"></path></marker>
+</defs>
+<rect x="0" y="0" width="528" height="264" fill="#FFFFFF"></rect>
+
+<g fill="#F1F1F1" stroke="#0A0A0A" stroke-width="1.2">
+<rect x="12" y="30" width="64" height="28" rx="4"></rect>
+<rect x="12" y="118" width="64" height="26" rx="4"></rect>
+<rect x="12" y="152" width="64" height="26" rx="4"></rect>
+<rect x="420" y="180" width="92" height="30" rx="4"></rect>
+</g>
+<g fill="#FFFFFF" stroke="#0A0A0A" stroke-width="1.2">
+<rect x="104" y="14" width="84" height="28" rx="6"></rect>
+<rect x="104" y="50" width="84" height="28" rx="6"></rect>
+<rect x="104" y="114" width="72" height="64" rx="6"></rect>
+<rect x="282" y="128" width="56" height="28" rx="6"></rect>
+<rect x="348" y="128" width="62" height="28" rx="6"></rect>
+<rect x="420" y="128" width="92" height="28" rx="6"></rect>
+</g>
+<rect x="212" y="14" width="110" height="28" rx="4" fill="#F1F1F1" stroke="#0A0A0A" stroke-width="1.2"></rect>
+<rect x="212" y="50" width="110" height="28" rx="4" fill="#F1F1F1" stroke="#0A0A0A" stroke-width="1.2"></rect>
+<rect x="196" y="118" width="72" height="60" rx="8" fill="#B1E5DB" stroke="#0A0A0A" stroke-width="1.8"></rect>
+<rect x="12" y="192" width="146" height="46" rx="6" fill="#D9D9E5" stroke="#0A0A0A" stroke-width="1.2"></rect>
+
+<g font-size="10.67" text-anchor="middle">
+<text x="44" y="42">Source</text>
+<text x="44" y="54">portrait</text>
+<text x="146" y="27">Appearance</text>
+<text x="146" y="39">extractor</text>
+<text x="146" y="63">Motion</text>
+<text x="146" y="75">extractor</text>
+<text x="267" y="27">Cached appearance</text>
+<text x="267" y="39">+ crop transform</text>
+<text x="267" y="63">Reference</text>
+<text x="267" y="75">condition</text>
+<text x="44" y="135">Self audio</text>
+<text x="44" y="169">Other audio</text>
+<text x="140" y="142">Audio</text>
+<text x="140" y="154">encoder</text>
+<text x="310" y="146">Stitching</text>
+<text x="379" y="140">Warp +</text>
+<text x="379" y="152">decode</text>
+<text x="466" y="140">Paste-back</text>
+<text x="466" y="152">+ MODNet matte</text>
+<text x="466" y="192">5 rendered</text>
+<text x="466" y="204">frames</text>
+<text x="85" y="222">75-frame motion history,</text>
+<text x="85" y="234">audio buffers, last noise</text>
+</g>
+<text x="232" y="144" font-size="12" text-anchor="middle">Motion</text>
+<text x="232" y="157" font-size="12" text-anchor="middle">model</text>
+<text x="85" y="208" font-size="12" text-anchor="middle">Session state</text>
+
+<g stroke="#0A0A0A" stroke-width="1.4" fill="none" marker-end="url(#ah)">
+<path d="M76,44 L90,44 L90,28 L104,28"></path>
+<path d="M90,44 L90,64 L104,64"></path>
+<path d="M188,28 L212,28"></path>
+<path d="M188,64 L212,64"></path>
+<path d="M76,131 L104,131"></path>
+<path d="M76,165 L104,165"></path>
+<path d="M176,131 L196,131"></path>
+<path d="M176,165 L196,165"></path>
+<path d="M268,148 L282,148"></path>
+<path d="M338,142 L348,142"></path>
+<path d="M410,142 L420,142"></path>
+<path d="M466,156 L466,180"></path>
+<path d="M158,215 L232,215 L232,178"></path>
+</g>
+<path d="M267,78 L267,104 L232,104 L232,118" stroke="#0A0A0A" stroke-width="1.4" fill="none" marker-end="url(#ah)"></path>
+<path d="M322,28 L379,28 L379,128" stroke="#0A0A0A" stroke-width="1.4" fill="none" marker-end="url(#ah)"></path>
+<path d="M252,178 L252,250 L88,250 L88,238" stroke="#0A0A0A" stroke-width="1.4" fill="none" stroke-dasharray="4 3" marker-end="url(#ah)"></path>
+<text x="170" y="246" font-size="10.67" text-anchor="middle">updated state</text>
+</svg>

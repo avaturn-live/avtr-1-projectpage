@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>AVTR-1: Self-Hostable Stack for Real-Time Interactive Avatars</title>
+<link rel="icon" type="image/x-icon" href="favicon.ico" sizes="48x48">
+<meta name="description" content="AVTR-1: a real-time conversational talking-head model that animates a single reference photo from speech, with dyadic listening behavior and identity-preserving rendering." />
+
+<style>
+  :root {
+    --bg: #0e0f12;
+    --panel: #16181d;
+    --panel-2: #1c1f26;
+    --fg: #f1f3f5;
+    --muted: #c5c9d2;
+    --accent: #7c5cff;
+    --accent-2: #4ecbff;
+    --border: rgba(255,255,255,0.08);
+    --good: #4ade80;
+    --warn: #f59e0b;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: var(--bg); color: var(--fg); overflow-x: clip; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto,
+                 "Helvetica Neue", Arial, sans-serif;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  a { color: var(--accent-2); text-decoration: none; }
+  a:hover { color: var(--accent); }
+
+  .container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 24px;
+  }
+
+  /* ----- Hero ----- */
+  .hero {
+    text-align: center;
+    padding: 80px 24px 56px;
+    background:
+      radial-gradient(1200px 600px at 50% -10%,
+        rgba(124,92,255,0.25), transparent 60%),
+      radial-gradient(800px 400px at 80% 0%,
+        rgba(78,203,255,0.15), transparent 60%);
+    border-bottom: 1px solid var(--border);
+  }
+  .hero h1 {
+    font-size: 56px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    margin: 0 0 12px;
+    background: linear-gradient(90deg, #fff 0%, #c8cdf5 50%, #9adfff 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .hero .tagline {
+    font-size: 28px;
+    font-weight: 600;
+    color: #fff;
+    letter-spacing: -0.01em;
+    max-width: 760px;
+    margin: 0 auto 10px;
+  }
+  .hero .sub-tagline {
+    font-size: 17px;
+    color: var(--muted);
+    max-width: 640px;
+    margin: 0 auto 28px;
+  }
+  .hero .authors {
+    color: var(--muted);
+    margin: 0 0 8px;
+    font-size: 15px;
+  }
+  .hero .affiliation {
+    color: var(--muted);
+    margin: 0 0 28px;
+    font-size: 14px;
+  }
+  .btn-row {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 18px;
+    border-radius: 999px;
+    background: var(--panel-2);
+    border: 1px solid var(--border);
+    color: var(--fg);
+    font-weight: 500;
+    font-size: 14px;
+    transition: background 0.15s, transform 0.15s;
+  }
+  .btn:hover { background: #262932; transform: translateY(-1px); }
+  .btn.primary {
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    border: none;
+  }
+  .btn.primary:hover { background: linear-gradient(135deg, #6b4eff, #2cc1ff); color: #fff; }
+
+  /* ----- Sections ----- */
+  section {
+    padding: 64px 24px;
+    border-bottom: 1px solid var(--border);
+  }
+  section h2 {
+    font-size: 32px;
+    margin: 0 0 12px;
+    text-align: center;
+    letter-spacing: -0.01em;
+  }
+  section .sub {
+    color: var(--muted);
+    text-align: center;
+    max-width: 720px;
+    margin: 0 auto 36px;
+  }
+  section p { color: #e3e6ec; }
+
+  /* ----- Abstract ----- */
+  .abstract {
+    max-width: 880px;
+    margin: 0 auto;
+    font-size: 17px;
+    text-align: justify;
+    hyphens: auto;
+  }
+  .abstract p + p { margin-top: 16px; }
+
+  /* ----- Video grid ----- */
+  .video-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    max-width: 820px;
+    margin: 0 auto;
+  }
+  .video-card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+    transition: transform 0.15s, border-color 0.15s;
+  }
+  .video-card:hover {
+    transform: translateY(-2px);
+    border-color: rgba(124,92,255,0.4);
+  }
+  .video-card video {
+    display: block;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    background: #000;
+    object-fit: contain;
+  }
+  .video-mock {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    background:
+      radial-gradient(circle at 50% 35%,
+        rgba(124,92,255,0.35), rgba(78,203,255,0.10) 55%, transparent 70%),
+      linear-gradient(135deg, #1a1d24 0%, #0f1115 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #4b5163;
+  }
+  .video-mock::after {
+    content: "▶";
+    font-size: 44px;
+    color: rgba(255,255,255,0.18);
+  }
+  .video-mock .badge {
+    position: absolute;
+    bottom: 12px;
+    left: 12px;
+    background: rgba(0,0,0,0.55);
+    backdrop-filter: blur(6px);
+    color: #fff;
+    font-size: 12px;
+    padding: 4px 10px;
+    border-radius: 999px;
+    letter-spacing: 0.02em;
+  }
+  .video-card .meta {
+    padding: 14px 16px 16px;
+  }
+  .video-card .meta .title {
+    color: #fff;
+    font-size: 15px;
+    margin: 0 0 4px;
+  }
+  .video-card .meta .desc {
+    color: var(--muted);
+    font-size: 13px;
+    margin: 0;
+  }
+
+  /* ----- Pipeline diagram ----- */
+  .pipeline {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 28px 22px;
+    margin: 24px auto 0;
+    max-width: 980px;
+  }
+  .pipeline-row {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 12px;
+    align-items: stretch;
+  }
+  @media (max-width: 800px) {
+    .pipeline-row { grid-template-columns: repeat(2, 1fr); }
+  }
+  .step {
+    background: var(--panel-2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 14px 16px;
+    position: relative;
+  }
+  .step .num {
+    display: inline-block;
+    font-size: 12px;
+    color: var(--accent);
+    background: rgba(124,92,255,0.12);
+    border: 1px solid rgba(124,92,255,0.3);
+    padding: 2px 8px;
+    border-radius: 999px;
+    margin-bottom: 8px;
+  }
+  .step h4 {
+    margin: 0 0 4px;
+    font-size: 15px;
+    color: #fff;
+  }
+  .step p {
+    margin: 0;
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.45;
+  }
+
+  /* ----- Compare grid ----- */
+  .compare-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 14px;
+  }
+  .compare-card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+  }
+  .compare-card .header {
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .compare-card .header .name { font-weight: 600; color: #fff; font-size: 15px; }
+  .compare-card .header .tag {
+    color: var(--accent-2);
+    font-size: 12px;
+    padding: 2px 10px;
+    border-radius: 999px;
+    border: 1px solid rgba(78,203,255,0.3);
+    background: rgba(78,203,255,0.08);
+  }
+  .compare-card.ours .header .tag {
+    color: var(--accent);
+    border-color: rgba(124,92,255,0.4);
+    background: rgba(124,92,255,0.12);
+  }
+  .compare-card .video-mock { aspect-ratio: 4 / 5; }
+  .compare-card .stats {
+    padding: 12px 16px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px 14px;
+  }
+  .compare-card .stats .row { display: flex; justify-content: space-between; font-size: 13px; }
+  .compare-card .stats .row .k { color: var(--muted); }
+  .compare-card .stats .row .v { color: #fff; }
+
+  /* ----- Features ----- */
+  .features {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 16px;
+  }
+  .feature {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 22px;
+  }
+  .feature .icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+  }
+  .feature h3 { margin: 0 0 6px; font-size: 17px; color: #fff; }
+  .feature p { margin: 0; color: var(--muted); font-size: 14px; }
+
+  /* ----- Metrics table ----- */
+  .table-wrap {
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    background: var(--panel);
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    background: transparent;
+    table-layout: fixed;
+  }
+  th, td {
+    padding: 8px 10px;
+    text-align: center;
+    border-bottom: 1px solid var(--border);
+    font-size: 13px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  /* First two columns (Metric, Encoder) stay left-aligned for readability. */
+  th:nth-child(1), td:nth-child(1),
+  th:nth-child(2), td:nth-child(2) { text-align: left; }
+  th { color: var(--muted); font-weight: 500; background: rgba(255,255,255,0.02); }
+  tr:last-child td { border-bottom: none; }
+  th.num, td.num { font-variant-numeric: tabular-nums; color: #fff; text-align: center !important; }
+  tr.ours td { background: rgba(124,92,255,0.08); color: #fff; }
+  tr.ours td:first-child { color: var(--accent); font-weight: 600; }
+  td.best { color: var(--good); font-weight: 600; }
+  /* CSS-based tooltip on metric name cells. Same UX as our SI own tables. */
+  td.metric, th.metric { position: relative; overflow: visible !important; }
+  td.metric[data-tip], th.metric[data-tip] {
+    cursor: help;
+    text-decoration: underline dotted rgba(255,255,255,0.55);
+  }
+  td.metric[data-tip]::after, th.metric[data-tip]::after {
+    content: attr(data-tip);
+    position: absolute;
+    left: 0;
+    top: 100%;
+    margin-top: 6px;
+    background: #232631;
+    color: #f1f3f5;
+    padding: 10px 14px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    font-size: 12px;
+    font-weight: 400;
+    line-height: 1.5;
+    white-space: normal;
+    width: 380px;
+    max-width: 80vw;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.6);
+    visibility: hidden;
+    opacity: 0;
+    transition: opacity 120ms ease-in 150ms;
+    pointer-events: none;
+    z-index: 1000;
+  }
+  td.metric[data-tip]:hover::after,
+  th.metric[data-tip]:hover::after { visibility: visible; opacity: 1; }
+  /* Need overflow:visible all the way up to the table-wrap so the
+     tooltip can escape its cell. */
+  .table-wrap, table, tbody, tr { overflow: visible; }
+  /* On narrow screens, give up the in-place tooltip and let the table
+     scroll horizontally so cell text stays readable. Also let the
+     video grid go edge-to-edge so quad clips have as much width as
+     possible. */
+  @media (max-width: 720px) {
+    .table-wrap {
+      overflow-x: auto !important;
+      -webkit-overflow-scrolling: touch;
+    }
+    table { min-width: 680px; }
+    th, td { padding: 6px 8px; font-size: 12px; }
+    td.metric[data-tip]::after { display: none; }
+    section { padding: 48px 12px; }
+    .video-grid {
+      max-width: none;
+      gap: 12px;
+    }
+    .video-card {
+      border-radius: 8px;
+    }
+    .video-card video {
+      aspect-ratio: auto;  /* let the source video's intrinsic ratio drive height */
+    }
+    figure.diagram {
+      padding: 10px;
+    }
+  }
+  @media (max-width: 480px) {
+    .hero h1 { font-size: 40px; }
+    .hero .tagline { font-size: 22px; }
+    .hero .sub-tagline { font-size: 15px; }
+    section h2 { font-size: 24px; }
+  }
+  tr.group-divider td {
+    border-top: 3px solid rgba(124,92,255,0.55);
+  }
+  tr.group-divider-headline td {
+    border-top: 4px solid rgba(124,92,255,0.85);
+  }
+  tr.section-header td {
+    background: rgba(124,92,255,0.10);
+    color: var(--accent);
+    font-weight: 700;
+    font-size: 13px;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    padding-top: 18px;
+    padding-bottom: 12px;
+    border-top: 3px solid rgba(124,92,255,0.55);
+    border-bottom: 1px solid rgba(124,92,255,0.3);
+  }
+  /* First section gets no thick top-border (already inside rounded card). */
+  tr.section-header:first-child td { border-top: none; }
+  td.ours-cell {
+    background: rgba(124,92,255,0.08);
+    border-left: 2px solid rgba(124,92,255,0.5);
+    color: #fff;
+  }
+  td.best.ours-cell { color: var(--good); }
+
+  /* ----- Figures / diagrams ----- */
+  figure.diagram {
+    margin: 36px auto 0;
+    max-width: 980px;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 18px;
+  }
+  figure.diagram img {
+    display: block;
+    width: 100%;
+    height: auto;
+    border-radius: 8px;
+    background: #fff;
+  }
+  figure.diagram figcaption {
+    color: var(--muted);
+    font-size: 13px;
+    text-align: center;
+    margin-top: 14px;
+    line-height: 1.5;
+  }
+  figure.diagram figcaption strong { color: #fff; }
+
+  /* ----- BibTeX ----- */
+  .bibtex {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px 18px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 13px;
+    color: #e3e6ec;
+    overflow-x: auto;
+    white-space: pre;
+    max-width: 880px;
+    margin: 0 auto;
+  }
+
+  /* ----- Footer ----- */
+  footer {
+    text-align: center;
+    padding: 36px 24px 56px;
+    color: var(--muted);
+    font-size: 13px;
+  }
+  footer a { color: var(--muted); }
+  footer a:hover { color: var(--accent-2); }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="container">
+    <h1>AVTR-1</h1>
+    <p class="tagline">Self-Hostable Stack for Real-Time Interactive Avatars</p>
+    <p class="authors">
+      Anastasia&nbsp;Tikhonova<sup>*</sup>,
+      Artem&nbsp;Kravtsov<sup>*</sup>,
+      Dmitrii&nbsp;Ziganshin<sup>*</sup>,
+      Egor&nbsp;Burkov<sup>*</sup>,
+      Gleb&nbsp;Balitskiy<sup>*</sup>,
+      Sergei&nbsp;Sherman<sup>*</sup>,
+      Vadim&nbsp;Lebedev<sup>*</sup>,
+      Vsevolod&nbsp;Poletaev<sup>*</sup>
+    </p>
+    <p class="affiliation">
+      Avaturn · 2026 &nbsp; · &nbsp;
+      <sup>*</sup> Equal contribution
+    </p>
+    <div class="btn-row">
+      <a class="btn primary" href="#demo">▶ Watch demo</a>
+      <a class="btn" href="https://avaturn.live" target="_blank" rel="noopener">Website</a>
+      <a class="btn" href="https://github.com/avaturn-live/avtr-1" target="_blank" rel="noopener">Code</a>
+      <a class="btn" href="#" style="opacity: 0.6; pointer-events: none;">Tech report ↗ (soon)</a>
+    </div>
+  </div>
+</header>
+
+<!-- ABSTRACT -->
+<section id="abstract">
+  <div class="container">
+    <h2>Abstract</h2>
+    <div class="abstract">
+      <p>
+        We introduce <strong>AVTR-1</strong>, a self-hostable inference and serving
+        stack for real-time conversations with an interactive avatar. A
+        153M-parameter flow-matching Transformer autoregressively generates a compact
+        motion representation in five-frame chunks from separate audio streams for the
+        two participants, independently of appearance rendering. We adapt an audio
+        encoder for streaming by self-distillation, matching its short-chunk features
+        to the full-context features used during training. Region-wise
+        classifier-free guidance enables fine-grained control over the generated
+        motion. The serving runtime connects chunked motion generation to an external
+        conversation engine, synchronizes its speech with video, continues generation
+        while the avatar listens, and handles interruptions. AVTR-1 performs
+        competitively with state-of-the-art talking-head models while supporting
+        full-duplex interaction. The complete runtime generates and renders each
+        200&nbsp;ms video chunk in 84&nbsp;ms on an NVIDIA L40 and 166&nbsp;ms on an
+        NVIDIA RTX 4060 Ti. To test whether generated listening motion contains
+        predictive information from the paired speaker's speech, we introduce the
+        Reference-Based Directed Granger Gain. AVTR-1 obtains a positive gain with a
+        95% bootstrap interval above zero, while the intervals for the non-dyadic
+        baselines include zero. To our knowledge, this is the first public release to
+        provide the complete self-hostable stack required to run a live, interactive
+        session with an avatar. We release the model weights, inference code, and
+        serving backend under component-specific licenses.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- DEMO -->
+<section id="demo">
+  <div class="container">
+    <h2>Demo</h2>
+    <p class="sub">
+      Three dyadic
+      <a href="https://www.aidemos.meta.com/seamless_interaction_dataset"
+      target="_blank" rel="noopener">Seamless Interaction</a> calls below.
+    </p>
+
+    <div class="video-grid">
+      <div class="video-card">
+        <video controls preload="metadata" playsinline
+               src="media/pair_V00_S2047_I00001188.mp4"></video>
+      </div>
+      <div class="video-card">
+        <video controls preload="metadata" playsinline
+               src="media/pair_V00_S2052_I00000635.mp4"></video>
+      </div>
+      <div class="video-card">
+        <video controls preload="metadata" playsinline
+               src="media/pair_V00_S2019_I00001095.mp4"></video>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- METHOD -->
+<section id="method">
+  <div class="container">
+    <h2>Model Architecture</h2>
+    <p class="sub">
+      Overview of the AVTR-1 motion model. An 18-layer Transformer decoder
+      denoises a five-frame motion chunk, conditioned on two gated audio
+      streams, a static reference, the diffusion timestep through AdaLN
+      modulation, and the past motion split into near and far paths. Four
+      parallel region-wise heads produce the 42-dimensional velocity, and the
+      clean chunk is appended to the motion history for the next step.
+    </p>
+
+    <figure class="diagram">
+      <img src="media/avtr1-architecture.svg" alt="AVTR-1 motion model architecture">
+    </figure>
+
+  </div>
+</section>
+
+<!-- INFERENCE -->
+<section id="inference">
+  <div class="container">
+    <h2>Inference</h2>
+    <p class="sub">
+      Overview of AVTR-1 inference. Source registration caches the LivePortrait
+      appearance and constructs the reference condition. Each request encodes the
+      two audio streams, predicts a five-frame motion chunk from the session state,
+      renders the frames, and returns the updated state for the next request.
+    </p>
+
+    <figure class="diagram">
+      <img src="media/avtr1-inference.svg" alt="AVTR-1 inference overview">
+    </figure>
+
+    <p style="max-width: 900px; margin: 32px auto 0; color: #e3e6ec; text-wrap: balance; text-align: center;">
+      The streamer's worklet and event-bus architecture. A transport, a conversation
+      engine, and a rendering worklet communicate only through a central event bus.
+      The conversation engine worklet adapts a voice agent, the rendering worklet
+      holds one speech scheduler per audio stream, avatar and user, and drives the
+      renderer, returning fused audio-video frames. Worklets read the stream clock
+      directly.
+    </p>
+
+    <figure class="diagram">
+      <img src="media/avtr1-streamer.svg" alt="AVTR-1 streamer worklet and event-bus architecture">
+    </figure>
+
+    <p style="max-width: 900px; margin: 48px auto 0; color: #e3e6ec; text-wrap: balance; text-align: center;">
+      Per-chunk latency and real-time factor across GPUs, measured offline
+      on one five-frame (200&nbsp;ms) chunk.
+    </p>
+    <div class="table-wrap" style="max-width: 560px; margin: 24px auto 0;">
+      <table>
+        <colgroup>
+          <col style="width: 34%;"/>
+          <col style="width: 36%;"/>
+          <col style="width: 30%;"/>
+        </colgroup>
+        <thead>
+          <tr>
+            <th>GPU</th>
+            <th class="num" style="white-space: nowrap;">Latency per chunk</th>
+            <th class="num" style="white-space: nowrap;">Real-time factor</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>NVIDIA&nbsp;L40</td>          <td class="num">84&nbsp;ms</td>  <td class="num best">2.4×</td></tr>
+          <tr><td>NVIDIA&nbsp;A100</td>         <td class="num">91&nbsp;ms</td>  <td class="num">2.2×</td></tr>
+          <tr><td>NVIDIA&nbsp;RTX&nbsp;4060&nbsp;Ti</td> <td class="num">166&nbsp;ms</td> <td class="num">1.2×</td></tr>
+          <tr><td>NVIDIA&nbsp;RTX&nbsp;3070</td> <td class="num">181&nbsp;ms</td> <td class="num">1.1×</td></tr>
+          <tr><td>NVIDIA&nbsp;L4</td>           <td class="num">202&nbsp;ms</td> <td class="num">0.99×</td></tr>
+          <tr><td>NVIDIA&nbsp;RTX&nbsp;3060&nbsp;Ti</td> <td class="num">206&nbsp;ms</td> <td class="num">0.97×</td></tr>
+          <tr><td>NVIDIA&nbsp;RTX&nbsp;4060</td> <td class="num">232&nbsp;ms</td> <td class="num">0.86×</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- RESULTS (own models only) -->
+<section id="results">
+  <div class="container">
+    <h2>Qualitative Comparison</h2>
+    <p class="sub" style="font-size: 13px;">
+      <strong>★ = native dyadic audio conditioning.</strong> For
+      AvatarForcing*, we extend the hardcoded RoPE range and remove the
+      manual generation-length limit so that it can process the full
+      conversations.
+    </p>
+
+    <div class="video-grid">
+      <div class="video-card">
+        <video controls preload="metadata" playsinline style="aspect-ratio: 7 / 2;"
+               src="media/quad_V00_S2019_I00001095.mp4"></video>
+      </div>
+      <div class="video-card">
+        <video controls preload="metadata" playsinline style="aspect-ratio: 7 / 2;"
+               src="media/quad_V00_S2047_I00001188.mp4"></video>
+      </div>
+      <div class="video-card">
+        <video controls preload="metadata" playsinline style="aspect-ratio: 7 / 2;"
+               src="media/quad_V00_S2052_I00000635.mp4"></video>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- CITATION -->
+<section id="citation">
+  <div class="container">
+    <h2>Citation</h2>
+    <pre class="bibtex">@misc{avtr1_2026,
+  title  = {AVTR-1},
+  author = {Tikhonova, Anastasia and Kravtsov, Artem and Ziganshin, Dmitrii
+            and Burkov, Egor and Balitskiy, Gleb and Sherman, Sergei
+            and Lebedev, Vadim and Poletaev, Vsevolod},
+  year   = {2026},
+  url    = {https://avaturn.live}
+}</pre>
+  </div>
+</section>
+
+<!-- ACKNOWLEDGMENTS -->
+<section id="acknowledgments">
+  <div class="container">
+    <h2>Acknowledgments</h2>
+    <p class="sub">
+      We thank Vadim Lebedev for his contributions to analyzing and adapting the
+      motion representation and rendering components used in AVTR-1.
+    </p>
+  </div>
+</section>
+
+<footer>
+  <div class="container">
+    <p>
+      © 2026 Avaturn ·
+      <a href="https://avaturn.live" target="_blank" rel="noopener">avaturn.live</a>
+    </p>
+  </div>
+</footer>
+
+</body>
+</html>
